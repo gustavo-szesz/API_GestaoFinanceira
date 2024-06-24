@@ -72,27 +72,20 @@ namespace API_GestaoFinanceira.Controllers
 
         // POST: api/Empresas
         [HttpPost]
-        public async Task<ActionResult<Empresa>> PostEmpresa(Empresa empresa)
+        public async Task<IActionResult> PostEmpresa(Empresa empresa)
         {
-            _context.Empresas.Add(empresa);
             try
             {
+                _context.Empresas.Add(empresa);
                 await _context.SaveChangesAsync();
+                return CreatedAtAction(nameof(GetEmpresa), new { cnpj = empresa.Cnpj }, empresa);
             }
-            catch (DbUpdateException)
+            catch (Exception ex)
             {
-                if (EmpresaExists(empresa.Cnpj))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest("Erro ao criar a empresa: " + ex.Message);
             }
-
-            return CreatedAtAction("GetEmpresa", new { cnpj = empresa.Cnpj }, empresa);
         }
+
 
         // DELETE: api/Empresas/5
         [HttpDelete("{cnpj}")]

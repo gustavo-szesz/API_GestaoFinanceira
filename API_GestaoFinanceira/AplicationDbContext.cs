@@ -9,20 +9,22 @@ namespace API_GestaoFinanceira
         {
         }
         public DbSet<WeatherForecast> WeatherForecasts { get; set; }
-        public DbSet<Usuario> Usuario { get; set; }
-        public DbSet<Pessoa> Pessoa { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Pessoa> Pessoas { get; set; }
         public DbSet<Empresa> Empresas { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //Configuração 1:1 usuario e empresa
             modelBuilder.Entity<Usuario>()
                 .HasOne(u => u.Empresa)
-                .WithOne(e => e.Usuario)
-                .HasForeignKey<Empresa>(e => e.Cnpj);
+                .WithMany(e => e.Usuarios)
+                .HasForeignKey(u => u.EmpresaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             base.OnModelCreating(modelBuilder);
         }
+
 
 
     }

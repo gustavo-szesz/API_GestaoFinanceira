@@ -5,26 +5,29 @@ using System.Text.Json.Serialization;
 
 namespace API_GestaoFinanceira.Models
 {
-    public class Usuario
+    public class Usuario : BaseEntity
     {
-        [Key]
         public string Cpf { get; set; }
 
-        public string Nome { get; set; }
+        public string? Nome { get; set; }
 
-        public string Rg { get; set; }
+        public string? Rg { get; set; }
 
-        public DateTime DataNascimento { get; set; }
+        private DateTime? dataNascimento;
+        public DateTime? DataNascimento
+        {
+            get => dataNascimento;
+            set => dataNascimento = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : value;
+        }
 
-        public string Sexo { get; set; }
+        public string? Sexo { get; set; }
 
-        public int EstadoCivil { get; set; }
+        public int? EstadoCivil { get; set; }
 
-        public string Senha { get; set; }
+        public string? Senha { get; set; }
 
-        // Propriedade de navegação para Empresa
-        [NotMapped]
-        [JsonIgnore]
-        public Empresa Empresa { get; set; }
+        public int? EmpresaId { get; set; }
+
+        public virtual Empresa? Empresa { get; set; }
     }
 }

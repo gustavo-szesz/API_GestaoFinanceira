@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API_GestaoFinanceira.Migrations
 {
     [DbContext(typeof(AplicationDbContext))]
-    [Migration("20240623213943_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240624192142_UpdateUsuarioEmpresaRelationship")]
+    partial class UpdateUsuarioEmpresaRelationship
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,29 +27,41 @@ namespace API_GestaoFinanceira.Migrations
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Cnpj")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DataAbertura")
+                    b.Property<DateTime?>("DataAbertura")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DateAdded")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DateUpdated")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("InscricaoEstadual")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("InscricaoMunicipal")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("NomeFantasia")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("RazaoSocial")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Cnpj");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Empresas");
                 });
@@ -116,39 +128,56 @@ namespace API_GestaoFinanceira.Migrations
 
                     b.HasIndex("EnderecoId");
 
-                    b.ToTable("Pessoa");
+                    b.ToTable("Pessoas");
                 });
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.Usuario", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Cpf")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("DataNascimento")
+                    b.Property<DateTime?>("DataNascimento")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("EstadoCivil")
+                    b.Property<DateTime>("DateAdded")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DateUpdated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("EmpresaId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("EstadoCivil")
                         .HasColumnType("integer");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Rg")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Senha")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Sexo")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Cpf");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
-                    b.ToTable("Usuario");
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmpresaId");
+
+                    b.ToTable("Usuarios");
                 });
 
             modelBuilder.Entity("API_GestaoFinanceira.WeatherForecast", b =>
@@ -174,17 +203,6 @@ namespace API_GestaoFinanceira.Migrations
                     b.ToTable("WeatherForecasts");
                 });
 
-            modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
-                {
-                    b.HasOne("API_GestaoFinanceira.Models.Usuario", "Usuario")
-                        .WithOne("Empresa")
-                        .HasForeignKey("API_GestaoFinanceira.Models.Empresa", "Cnpj")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("API_GestaoFinanceira.Models.Pessoa", b =>
                 {
                     b.HasOne("API_GestaoFinanceira.Models.Endereco", "Endereco")
@@ -198,8 +216,18 @@ namespace API_GestaoFinanceira.Migrations
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.Usuario", b =>
                 {
-                    b.Navigation("Empresa")
-                        .IsRequired();
+                    b.HasOne("API_GestaoFinanceira.Models.Empresa", "Empresa")
+                        .WithMany("Usuarios")
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Usuario_Empresa");
+
+                    b.Navigation("Empresa");
+                });
+
+            modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
+                {
+                    b.Navigation("Usuarios");
                 });
 #pragma warning restore 612, 618
         }

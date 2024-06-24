@@ -18,7 +18,7 @@ namespace API_GestaoFinanceira.Controllers
         [HttpGet]
         public async Task<ActionResult<Pessoa>> GetPessoa(string email)
         {
-            var pessoa = await _context.Pessoa.FindAsync(email);
+            var pessoa = await _context.Pessoas.FindAsync(email);
 
             if (pessoa == null) { 
                 return NotFound();

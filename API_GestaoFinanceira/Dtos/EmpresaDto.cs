@@ -1,18 +1,13 @@
-﻿using System;
+﻿using API_GestaoFinanceira.Models;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
-namespace API_GestaoFinanceira.Models
+namespace API_GestaoFinanceira.Dtos
 {
-    public class Empresa : BaseEntity
+    public class EmpresaDto
     {
-        public Empresa() {
-            Usuarios = new HashSet<Usuario>();
-        }
-
+        [Key]
         public string Cnpj { get; set; }
-         
+
         public string? RazaoSocial { get; set; }
 
         public string? NomeFantasia { get; set; }
@@ -23,8 +18,7 @@ namespace API_GestaoFinanceira.Models
 
         public DateTime? DataAbertura { get; set; }
 
-        public virtual ICollection<Usuario> Usuarios { get; set; }
-
+        public string UsuarioCpf { get; set; }
 
     }
 }

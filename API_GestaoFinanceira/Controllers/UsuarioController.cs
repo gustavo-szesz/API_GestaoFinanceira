@@ -1,6 +1,7 @@
 ﻿using API_GestaoFinanceira.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using API_GestaoFinanceira.Dtos;
 using System;
 using System.Threading.Tasks;
 
@@ -17,10 +18,12 @@ namespace API_GestaoFinanceira.Controllers
             _context = context;
         }
 
+        //Corrigir
+
         [HttpGet("{cpf}")]
         public async Task<ActionResult<Usuario>> GetUsuario(string cpf)
         {
-            var usuario = await _context.Usuario.FindAsync(cpf);
+            var usuario = await _context.Usuarios.FindAsync(cpf);
 
             if (usuario == null)
             {
@@ -29,34 +32,80 @@ namespace API_GestaoFinanceira.Controllers
 
             return usuario;
         }
+        
+        /// <summary>
+        ///       Isso foi um delirio
+        /// </summary>
+        /// <returns></returns>
+
+        //private Usuario MapUserObject(UsuarioDto payload)
+        //{
+        //    var result = new Usuario();
+        //    result.Cpf = payload.Cpf;
+        //    result.Nome = payload.Nome;
+        //    result.Rg = payload.Rg;
+        //    result.DataNascimento = payload.DataNascimento;
+        //    result.EstadoCivil = payload.EstadoCivil;
+        //    result.Senha = payload.Senha;
+        //    result.empresa = new List<Empresa>();
+        //    payload.empresa.ForEach(_ =>
+        //    {
+        //        var newEmpresa = new Empresa();
+        //        newEmpresa.RazaoSocial = _.RazaoSocial;
+        //        newEmpresa.NomeFantasia = _.NomeFantasia;
+        //        newEmpresa.InscricaoMunicipal = _.InscricaoMunicipal;
+        //        newEmpresa.InscricaoEstadual = _.InscricaoEstadual;
+        //        //newEmpresa = _.DataAbertura;
+        //        result.empresa.Add(newEmpresa);
+
+        //    });
+        //    return result;
+        //}
 
 
         [HttpPost]
-        public async Task<IActionResult> PostUsuario(Usuario usuario)
+        public async Task<ActionResult<Usuario>> CreateUsuario(Usuario usuario)
         {
-            try
+            // Configura todos os campos de data para UTC
+            if (usuario.DataNascimento.HasValue)
             {
-                // Verifica se já existe um usuário com o CPF informado
-                var existingUser = await _context.Usuario.FindAsync(usuario.Cpf);
-                if (existingUser != null)
-                {
-                    return Conflict("CPF já cadastrado.");
-                }
-
-                _context.Usuario.Add(usuario);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction(nameof(GetUsuario), new { cpf = usuario.Cpf }, usuario);
+                usuario.DataNascimento = DateTime.SpecifyKind(usuario.DataNascimento.Value, DateTimeKind.Utc);
             }
-            catch (Exception ex)
-            {
-                return BadRequest("Erro ao salvar o usuário: " + ex.Message);
-            }
+
+            _context.Usuarios.Add(usuario);
+            await _context.SaveChangesAsync();
+
+            return Created($"/Usuario/{usuario.Cpf}", usuario);
         }
+
+
+        [HttpPatch("{cpf}/associar-empresa")]
+        public async Task<IActionResult> AssociarEmpresa(string cpf, int empresaId)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Cpf == cpf);
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var empresa = await _context.Empresas.FindAsync(empresaId);
+            if (empresa == null)
+            {
+                return NotFound("Empresa não encontrada.");
+            }
+
+            usuario.EmpresaId = empresaId;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
+
 
         private bool UsuarioExists(string cpf)
         {
-            return _context.Usuario.Any(u => u.Cpf == cpf);
+            return _context.Usuarios.Any(u => u.Cpf == cpf);
         }
 
 
@@ -94,13 +143,13 @@ namespace API_GestaoFinanceira.Controllers
         [HttpDelete("{cpf}")]
         public async Task<IActionResult> DeleteUsuario(string cpf)
         {
-            var usuario = await _context.Usuario.FindAsync(cpf);
+            var usuario = await _context.Usuarios.FindAsync(cpf);
             if (usuario == null)
             {
                 return NotFound();
             }
 
-            _context.Usuario.Remove(usuario);
+            _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
             //Criar mensagem ao atualizar base
 
