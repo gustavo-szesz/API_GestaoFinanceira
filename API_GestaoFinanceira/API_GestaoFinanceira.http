@@ -3,4 +3,36 @@
 GET {{API_GestaoFinanceira_HostAddress}}/weatherforecast/
 Accept: application/json
 
-###
+
+PATCH {{API_GestaoFinanceira_HostAddress}}/api/
+
+
+
+### Empresa
+### Associar valor a empresa
+@API_GestaoFinanceira_HostAddress = http://localhost:5168
+PATCH {{API_GestaoFinanceira_HostAddress}}/api/Empresa/string/associar-a-pessoa
+Content-Type: application/json
+
+{
+    "pessoaId": 5
+}
+
+
+###Lançar valores 
+POST {{API_GestaoFinanceira_HostAddress}}/api/LancamentoValores
+Content-Type: application/json
+
+{
+  "NumLancamento": "LV001",
+  "TipoLancamento": "Despesa",
+  "TipoFixo": false,
+  "Descricao": "Pagamento de fornecedor",
+  "Valor": 1500.00,
+  "TipoPagamento": "Boleto",
+  "Vencimento": "2024-07-01",
+  "Parcelas": 1,
+  "Status": true,
+  "DataLancamento": "2024-06-26",
+  "EmpresaCnpj": "Empresa"
+}

@@ -3,6 +3,7 @@ using System;
 using API_GestaoFinanceira;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API_GestaoFinanceira.Migrations
 {
     [DbContext(typeof(AplicationDbContext))]
-    partial class AplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240626021907_NewMigration23")]
+    partial class NewMigration23
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,51 +24,6 @@ namespace API_GestaoFinanceira.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
-                {
-                    b.Property<string>("Cnpj")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("DataAbertura")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("InscricaoEstadual")
-                        .HasColumnType("text");
-
-                    b.Property<string>("InscricaoMunicipal")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NomeFantasia")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("PessoaId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RazaoSocial")
-                        .HasColumnType("text");
-
-                    b.HasKey("Cnpj");
-
-                    b.HasIndex("PessoaId");
-
-                    b.ToTable("Empresas");
-                });
-
-            modelBuilder.Entity("API_GestaoFinanceira.Models.EmpresaPessoa", b =>
-                {
-                    b.Property<string>("Cnpj")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PessoaId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Cnpj", "PessoaId");
-
-                    b.HasIndex("PessoaId");
-
-                    b.ToTable("EmpresaPessoas");
-                });
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.Endereco", b =>
                 {
@@ -91,12 +49,7 @@ namespace API_GestaoFinanceira.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("PessoaId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PessoaId");
 
                     b.ToTable("Enderecos");
                 });
@@ -116,8 +69,8 @@ namespace API_GestaoFinanceira.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("EmpresaCnpj")
-                        .HasColumnType("text");
+                    b.Property<int?>("EmpresaId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("NumLancamento")
                         .IsRequired()
@@ -148,7 +101,7 @@ namespace API_GestaoFinanceira.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmpresaCnpj");
+                    b.HasIndex("EmpresaId");
 
                     b.ToTable("LancamentoValores");
                 });
@@ -168,9 +121,17 @@ namespace API_GestaoFinanceira.Migrations
                     b.Property<DateOnly>("DataCadastro")
                         .HasColumnType("date");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("EnderecoId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Numero")
                         .HasColumnType("integer");
@@ -181,25 +142,83 @@ namespace API_GestaoFinanceira.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EnderecoId");
+
                     b.ToTable("Pessoas");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Pessoa");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("API_GestaoFinanceira.WeatherForecast", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DateString")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TemperatureC")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WeatherForecasts");
+                });
+
+            modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
+                {
+                    b.HasBaseType("API_GestaoFinanceira.Models.Pessoa");
+
+                    b.Property<string>("Cnpj")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DataAbertura")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("InscricaoEstadual")
+                        .HasColumnType("text");
+
+                    b.Property<string>("InscricaoMunicipal")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NomeFantasia")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RazaoSocial")
+                        .HasColumnType("text");
+
+                    b.HasDiscriminator().HasValue("Empresa");
                 });
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.Usuario", b =>
                 {
+                    b.HasBaseType("API_GestaoFinanceira.Models.Pessoa");
+
                     b.Property<string>("Cpf")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("DataNascimento")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("EmpresaId")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("EstadoCivil")
                         .HasColumnType("integer");
 
                     b.Property<string>("Nome")
                         .HasColumnType("text");
-
-                    b.Property<int?>("PessoaId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Rg")
                         .HasColumnType("text");
@@ -210,82 +229,50 @@ namespace API_GestaoFinanceira.Migrations
                     b.Property<string>("Sexo")
                         .HasColumnType("text");
 
-                    b.HasKey("Cpf");
+                    b.HasIndex("EmpresaId");
 
-                    b.HasIndex("PessoaId");
-
-                    b.ToTable("Usuarios");
-                });
-
-            modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
-                {
-                    b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
-                        .WithMany("Empresas")
-                        .HasForeignKey("PessoaId");
-
-                    b.Navigation("Pessoa");
-                });
-
-            modelBuilder.Entity("API_GestaoFinanceira.Models.EmpresaPessoa", b =>
-                {
-                    b.HasOne("API_GestaoFinanceira.Models.Empresa", "Empresa")
-                        .WithMany("PessoasAssociadas")
-                        .HasForeignKey("Cnpj")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
-                        .WithMany("EmpresasAssociadas")
-                        .HasForeignKey("PessoaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Empresa");
-
-                    b.Navigation("Pessoa");
-                });
-
-            modelBuilder.Entity("API_GestaoFinanceira.Models.Endereco", b =>
-                {
-                    b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
-                        .WithMany("Enderecos")
-                        .HasForeignKey("PessoaId");
-
-                    b.Navigation("Pessoa");
+                    b.HasDiscriminator().HasValue("Usuario");
                 });
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.LancamentoValores", b =>
                 {
                     b.HasOne("API_GestaoFinanceira.Models.Empresa", "Empresa")
                         .WithMany("LancamentoValoresEmpresa")
-                        .HasForeignKey("EmpresaCnpj");
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Empresa");
                 });
 
+            modelBuilder.Entity("API_GestaoFinanceira.Models.Pessoa", b =>
+                {
+                    b.HasOne("API_GestaoFinanceira.Models.Endereco", "Endereco")
+                        .WithMany("Pessoas")
+                        .HasForeignKey("EnderecoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Endereco");
+                });
+
             modelBuilder.Entity("API_GestaoFinanceira.Models.Usuario", b =>
                 {
-                    b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
+                    b.HasOne("API_GestaoFinanceira.Models.Empresa", "Empresa")
                         .WithMany("Usuarios")
-                        .HasForeignKey("PessoaId");
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Pessoa");
+                    b.Navigation("Empresa");
+                });
+
+            modelBuilder.Entity("API_GestaoFinanceira.Models.Endereco", b =>
+                {
+                    b.Navigation("Pessoas");
                 });
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
                 {
                     b.Navigation("LancamentoValoresEmpresa");
-
-                    b.Navigation("PessoasAssociadas");
-                });
-
-            modelBuilder.Entity("API_GestaoFinanceira.Models.Pessoa", b =>
-                {
-                    b.Navigation("Empresas");
-
-                    b.Navigation("EmpresasAssociadas");
-
-                    b.Navigation("Enderecos");
 
                     b.Navigation("Usuarios");
                 });

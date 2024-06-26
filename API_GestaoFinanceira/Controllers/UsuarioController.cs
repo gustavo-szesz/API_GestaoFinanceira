@@ -94,7 +94,7 @@ namespace API_GestaoFinanceira.Controllers
                 return NotFound("Empresa não encontrada.");
             }
 
-            usuario.EmpresaId = empresaId;
+            //usuario.EmpresaId = empresaId;
             await _context.SaveChangesAsync();
 
             return NoContent();

@@ -3,6 +3,7 @@ using System;
 using API_GestaoFinanceira;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API_GestaoFinanceira.Migrations
 {
     [DbContext(typeof(AplicationDbContext))]
-    partial class AplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240626025039_NewMigration25")]
+    partial class NewMigration25
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +42,7 @@ namespace API_GestaoFinanceira.Migrations
                     b.Property<string>("NomeFantasia")
                         .HasColumnType("text");
 
-                    b.Property<int?>("PessoaId")
+                    b.Property<int>("PessoaId")
                         .HasColumnType("integer");
 
                     b.Property<string>("RazaoSocial")
@@ -50,21 +53,6 @@ namespace API_GestaoFinanceira.Migrations
                     b.HasIndex("PessoaId");
 
                     b.ToTable("Empresas");
-                });
-
-            modelBuilder.Entity("API_GestaoFinanceira.Models.EmpresaPessoa", b =>
-                {
-                    b.Property<string>("Cnpj")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PessoaId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Cnpj", "PessoaId");
-
-                    b.HasIndex("PessoaId");
-
-                    b.ToTable("EmpresaPessoas");
                 });
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.Endereco", b =>
@@ -91,7 +79,7 @@ namespace API_GestaoFinanceira.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("PessoaId")
+                    b.Property<int>("PessoaId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -117,6 +105,7 @@ namespace API_GestaoFinanceira.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EmpresaCnpj")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("NumLancamento")
@@ -198,7 +187,7 @@ namespace API_GestaoFinanceira.Migrations
                     b.Property<string>("Nome")
                         .HasColumnType("text");
 
-                    b.Property<int?>("PessoaId")
+                    b.Property<int>("PessoaId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Rg")
@@ -217,30 +206,36 @@ namespace API_GestaoFinanceira.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("API_GestaoFinanceira.WeatherForecast", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DateString")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TemperatureC")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WeatherForecasts");
+                });
+
             modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
                 {
                     b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
                         .WithMany("Empresas")
-                        .HasForeignKey("PessoaId");
-
-                    b.Navigation("Pessoa");
-                });
-
-            modelBuilder.Entity("API_GestaoFinanceira.Models.EmpresaPessoa", b =>
-                {
-                    b.HasOne("API_GestaoFinanceira.Models.Empresa", "Empresa")
-                        .WithMany("PessoasAssociadas")
-                        .HasForeignKey("Cnpj")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
-                        .WithMany("EmpresasAssociadas")
                         .HasForeignKey("PessoaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Empresa");
 
                     b.Navigation("Pessoa");
                 });
@@ -249,7 +244,9 @@ namespace API_GestaoFinanceira.Migrations
                 {
                     b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
                         .WithMany("Enderecos")
-                        .HasForeignKey("PessoaId");
+                        .HasForeignKey("PessoaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Pessoa");
                 });
@@ -258,7 +255,9 @@ namespace API_GestaoFinanceira.Migrations
                 {
                     b.HasOne("API_GestaoFinanceira.Models.Empresa", "Empresa")
                         .WithMany("LancamentoValoresEmpresa")
-                        .HasForeignKey("EmpresaCnpj");
+                        .HasForeignKey("EmpresaCnpj")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Empresa");
                 });
@@ -267,7 +266,9 @@ namespace API_GestaoFinanceira.Migrations
                 {
                     b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
                         .WithMany("Usuarios")
-                        .HasForeignKey("PessoaId");
+                        .HasForeignKey("PessoaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Pessoa");
                 });
@@ -275,15 +276,11 @@ namespace API_GestaoFinanceira.Migrations
             modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
                 {
                     b.Navigation("LancamentoValoresEmpresa");
-
-                    b.Navigation("PessoasAssociadas");
                 });
 
             modelBuilder.Entity("API_GestaoFinanceira.Models.Pessoa", b =>
                 {
                     b.Navigation("Empresas");
-
-                    b.Navigation("EmpresasAssociadas");
 
                     b.Navigation("Enderecos");
 

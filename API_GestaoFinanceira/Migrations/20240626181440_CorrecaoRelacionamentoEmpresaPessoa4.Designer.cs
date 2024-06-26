@@ -3,6 +3,7 @@ using System;
 using API_GestaoFinanceira;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API_GestaoFinanceira.Migrations
 {
     [DbContext(typeof(AplicationDbContext))]
-    partial class AplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240626181440_CorrecaoRelacionamentoEmpresaPessoa4")]
+    partial class CorrecaoRelacionamentoEmpresaPessoa4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,6 +120,7 @@ namespace API_GestaoFinanceira.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EmpresaCnpj")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("NumLancamento")
@@ -217,6 +221,29 @@ namespace API_GestaoFinanceira.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("API_GestaoFinanceira.WeatherForecast", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DateString")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TemperatureC")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WeatherForecasts");
+                });
+
             modelBuilder.Entity("API_GestaoFinanceira.Models.Empresa", b =>
                 {
                     b.HasOne("API_GestaoFinanceira.Models.Pessoa", "Pessoa")
@@ -258,7 +285,9 @@ namespace API_GestaoFinanceira.Migrations
                 {
                     b.HasOne("API_GestaoFinanceira.Models.Empresa", "Empresa")
                         .WithMany("LancamentoValoresEmpresa")
-                        .HasForeignKey("EmpresaCnpj");
+                        .HasForeignKey("EmpresaCnpj")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Empresa");
                 });
