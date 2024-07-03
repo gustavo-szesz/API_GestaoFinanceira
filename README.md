@@ -1,6 +1,7 @@
 # Backend - Gestão Financeira
 
 Este repositório contém a parte Backend do projeto de aplicação Gestão Financeira, desenvolvido para a disciplina **Modelos de Processos de Software**, ministrada pelo professor **Evandro Zatti**.
+O código do frontend está no seguinte repositório: https://github.com/GustavoLincoln/gestao-pagamentos
 
 ## Tecnologias Utilizadas
 
